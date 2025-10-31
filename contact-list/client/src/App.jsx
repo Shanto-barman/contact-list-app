@@ -7,7 +7,7 @@ function App() {
   const [form, setForm] = useState({ name: "", email: "", phone: "" });
 
   useEffect(() => {
-    axios.get("http://localhost:5000/api/contacts").then((res) => {
+    axios.get("http://localhost:5000/api/user").then((res) => {
       setContacts(res.data);
     });
   }, []);
@@ -18,14 +18,14 @@ function App() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    axios.post("http://localhost:5000/api/contacts", form).then((res) => {
+    axios.post("http://localhost:5000/api/user", form).then((res) => {
       setContacts([...contacts, res.data]);
       setForm({ name: "", email: "", phone: "" });
     });
   };
 
   const handleDelete = (id) => {
-    axios.delete(`http://localhost:5000/api/contacts/${id}`).then(() => {
+    axios.delete(`http://localhost:5000/api/user/${id}`).then(() => {
       setContacts(contacts.filter((d) => d._id !== id));
     });
   };
