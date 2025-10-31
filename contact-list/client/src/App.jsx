@@ -4,7 +4,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 
 function App() {
   const [contacts, setContacts] = useState([]);
-  const [form, setForm] = useState({ name: "", email: "", phone: "" });
+  const [form, setForm] = useState({ name: "", email: "",password:"", phone: "" });
 
   useEffect(() => {
     axios.get("http://localhost:5000/api/user").then((res) => {
@@ -50,6 +50,14 @@ function App() {
           className="form-control mb-2"
           required
         />
+         {/* <input
+          name="password"
+          value={form.password}
+          onChange={handleChange}
+          placeholder="Password"
+          className="form-control mb-2"
+          required
+        /> */}
         <input
           name="phone"
           value={form.phone}
@@ -70,6 +78,8 @@ function App() {
             <span>
               <b>{d.name}</b> <br />
               {d.email} <br /> {d.phone}
+              <br />
+              {/* {d.password} <br /> */}
             </span>
             <button
               className="btn btn-danger btn-sm"
