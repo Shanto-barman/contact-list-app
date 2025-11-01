@@ -2,7 +2,7 @@ import express from "express";
 import User from "./user.model.js";
 import bcrypt from "bcryptjs"
 import jwt from "jsonwebtoken"
-import { JWT_SECRET } from "../../config/envConfig.js";
+import {JWT_SECRET, ACCESS_TOKEN_EXPIRES_IN, REFRESH_TOKEN_EXPIRES_IN } from "../../config/envConfig.js";
 
 const router = express.Router();
 
@@ -28,29 +28,46 @@ const router = express.Router();
   }
 };
 
- export const loginUser = async(req, res) => {
-    const {email,password} = req.body;
-    try {
-        const user = await User.findOne({ email });
-        if (!user) {
+ export const loginUser = async (req, res) => {
+  const { email, password } = req.body;
+
+        try {
+          const user = await User.findOne({ email });
+          if (!user) {
             return res.status(404).json({ message: 'User not found' });
+          }
+
+        
+          const isMatch = await bcrypt.compare(password, user.password);
+          if (!isMatch) {
+            return res.status(400).json({ message: ' Invalid credentials' });
+          }
+
+          const accessToken = jwt.sign(
+            { userId: user._id, email: user.email },
+            JWT_SECRET, 
+            { expiresIn: ACCESS_TOKEN_EXPIRES_IN }
+          );
+
+          const refreshToken = jwt.sign(
+            { userId: user._id, email: user.email },
+            JWT_SECRET,
+            { expiresIn: REFRESH_TOKEN_EXPIRES_IN }
+          );
+
+          res.status(200).json({
+            message: 'Login successful',
+            accessToken,
+            refreshToken,
+            user:{
+              id:user._id,
+              email:user.email,
+            }
+          });
+        } catch (err) {
+          res.status(500).json({ message: `Server Error: ${err.message}` });
         }
-
-        const isMatch = await bcrypt.compare(password, user.password);
-
-        if (!isMatch) {
-            return res.status(400).json({ message: 'Invalid credentials' });
-        }
-
-
-        const token = jwt.sign({ userId: user._id, email: user.email }, JWT_SECRET, { expiresIn: '1m' });
-
-
-        res.status(200).json({ message: 'Login successful' , accessToken: token });
-    } catch (err) {
-        res.status(500).json({ message: err.message });
-    }
-}
+};
 
 
 
